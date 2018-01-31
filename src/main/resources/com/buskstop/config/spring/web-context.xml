@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<context:component-scan base-package="com.buskstop.controller"/>
+	<mvc:annotation-driven/>
+	
+	<!-- 링크 -->
+	<!-- <mvc:view-controller path="/index.do" view-name="index.tiles"/> -->
+	<mvc:view-controller path="/login_form.do" view-name="login_form.tiles"/>
+	<mvc:view-controller path="/join_member_form.do" view-name="member/join_member_form.tiles"/>
+	<mvc:view-controller path="/myPageView.do" view-name="mymypage/myPageView.myTiles"/>
+	<mvc:view-controller path="/member/performanceRegisterView.do" view-name="performance/performanceRegisterView.tiles"/>
+	<mvc:view-controller path="/artist/performanceRegisterView.do" view-name="performance/artistPerformanceRegisterView.tiles"/>
+	<mvc:view-controller path="/registerSuccessView.do" view-name="user/registerSuccessView.tiles"/>
+	<mvc:view-controller path="/performanceView.do" view-name="performance/performanceView.tiles"/>
+	<mvc:view-controller path="/testpage.do" view-name="testpage.tiles"/>
+	<mvc:view-controller path="/update_performance.do" view-name="performance/update_performance.tiles"/>
+	<mvc:view-controller path="/videoSelectCategoryView.do" view-name="video/videoSelectCategoryView.tiles"/>
+	<mvc:view-controller path="/videoListCategoryView.do" view-name="video/videoListCategoryView.tiles"/>
+	<mvc:view-controller path="/changeInfoCategoryView.do" view-name="video/changeInfoCategoryView.tiles"/>
+	<mvc:view-controller path="/stageView.do" view-name="stage/stageView.tiles"/>
+	<mvc:view-controller path="/stageDetailView.do" view-name="stage/stageDetailView.tiles"/>
+	<!-- 고객센터 링크 -->
+	<mvc:view-controller path="/helpView.do" view-name="help/helpView.tiles"/>
+	<mvc:view-controller path="/helpRegisterView.do" view-name="help/helpRegisterView.tiles"/>
+	
+	<!-- password check link -->
+	<mvc:view-controller path="/producer/passwordCheck.do" view-name="myPage/passwordCheck.myTemp"/>
+	<!-- 회원정보수정링크 -->
+	<mvc:view-controller path="/updateMemberInfo.do" view-name="myPage/updateMemberCategory.myTiles"/>
+	<mvc:view-controller path="/updateMemberView.do" view-name="myPage/updateMemberView.tiles"/>
+	<mvc:view-controller path="/updateMemberView2.do" view-name="myPage/updateMemberView.myTemp"/>
+	<!-- 회원탈퇴 링크 -->
+	<mvc:view-controller path="/member/out_member_form.do" view-name="member/out_member_form.myTiles"/>
+	
+	<!-- 공연장관련 링크 -->
+	<mvc:view-controller path="/stageUpdateView.do" view-name="stage/stageUpdateView.tiles"/>
+	<mvc:view-controller path="/stageView.do" view-name="stage/stageView.tiles"/>
+	<mvc:view-controller path="/stage/stageRegisterView.do" view-name="stage/stageRegisterView.tiles"/>
+	
+	<!-- 아이디 비밀번호 찾기 -->
+	<mvc:view-controller path="/findId.do" view-name="user/FindIdByEmail.tiles"/>
+	<mvc:view-controller path="/findPassword.do" view-name="user/FindPasswordByEmail.tiles"/>
+	
+	<!-- 403 권한 없음 에러 페이지 -->
+	<mvc:view-controller path="/error/access_denied.do" view-name="error/access_denied.tiles"/>
+	
+	<!-- 관리자 페이지 링크 -->
+	<mvc:view-controller path="/admin/adminPage.do" view-name="admin/adminPage.tiles"/>
+	<mvc:view-controller path="/admin/registAdmin.do" view-name="admin/registAdmin.tiles"/>
+	
+	<!-- 예전 index. -->
+	<mvc:view-controller path="/beforeIndex.do" view-name="index.tiles"/>
+	
+	<!-- test link -->
+	<mvc:view-controller path="/youtubeTest.do" view-name="youtubeTest.tiles"/>
+	<mvc:view-controller path="/mapTest3.do" view-name="performance/mapTest3.tiles"/>
+	<mvc:view-controller path="/searchStageByAddress.do" view-name="performance/searchStageByAddress.tiles2"/>
+	<mvc:view-controller path="/searchStageByKeyword.do" view-name="performance/searchStageByKeyword.tiles2"/>
+	
+	<bean name="tilesConfig" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>classpath:com/buskstop/config/tiles/tiles-config.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean name="tilesViewResolver" class="org.springframework.web.servlet.view.tiles3.TilesViewResolver">
+		<property name="order" value="1"/>
+	</bean>
+	<bean name="internalViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="2"/>
+	</bean>
+</beans>

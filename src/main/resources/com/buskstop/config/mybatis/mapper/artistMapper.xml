@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.artistMapper">
+
+	<!-- sql 설정 -->
+	<sql id="artist-colum-sql">
+		ARTIST_USER_ID, 
+		ARTIST_NAME, 
+		ARTIST_PERFORMANCE, 
+		ARTIST_PROFILE, 
+		ARTIST_IMAGE, 
+		ARTIST_MEMBERS, 
+		ARTIST_SNS
+	</sql>
+	
+	<sql id="artist-select-sql">
+		SELECT	<include refid="artist-colum-sql"/>
+		FROM	ARTIST
+	</sql>
+	
+	<resultMap type="Artist" id="artist-resultmap">
+		<id column="artist_user_id" property="artistId"/>
+		<result column="artist_name" property="artistName"/>
+		<result column="artist_performance" property="performance"/>
+		<result column="artist_profile" property="profile"/>
+		<result column="artist_image" property="artistImage"/>
+		<result column="artist_members" property="artistMembers"/>
+		<result column="artist_sns" property="artistSns"/>
+	</resultMap>
+
+   <insert id="insertArtist" parameterType="Artist">
+      INSERT INTO ARTIST
+      (ARTIST_USER_ID, ARTIST_NAME, ARTIST_PERFORMANCE, ARTIST_PROFILE, ARTIST_IMAGE, ARTIST_MEMBERS, ARTIST_SNS)
+      VALUES (
+         #{artistId}, #{artistName}, #{performance}, #{profile}, #{artistImage}, #{artistMembers}, #{artistSns}
+      )
+   </insert>
+   
+	<update id="updateArtist" parameterType="artist">
+   		UPDATE 	ARTIST
+   		SET		ARTIST_NAME = #{artistName},
+   				ARTIST_PERFORMANCE = #{performance},
+				ARTIST_PROFILE = #{profile},
+				ARTIST_IMAGE = #{artistImage},
+				ARTIST_MEMBERS = #{artistMembers},
+				ARTIST_SNS = #{artistSns}
+		WHERE 	ARTIST_USER_ID = #{artistId}   					
+	</update>
+   
+   <select id="selectArtistByUserId" parameterType="string" resultMap="artist-resultmap">
+   		<include refid="artist-select-sql"/>
+   		WHERE	artist_user_id = #{value}
+   </select>
+</mapper>

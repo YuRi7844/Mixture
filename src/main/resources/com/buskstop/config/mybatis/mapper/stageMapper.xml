@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.stageMapper">
+	<sql id="column-stage">
+		STAGE_NO,
+		STAGE_NAME,
+		STAGE_LOCATION,
+		STAGE_COST,
+		STAGE_AREA,
+		STAGE_INSTRUMENT,
+		STAGE_CONTENT,
+		STAGE_PARKING,
+		STAGE_DRINKING,
+		STAGE_FOOD_SELL,
+		STAGE_FOOD_RESTRICTION,
+		STAGE_RESERVATION,
+		STAGE_SELLER_ID,
+		STAGE_REG_TIME,
+		STAGE_RENTAL_DATE,
+		STAGE_START_TIME,
+		STAGE_END_TIME
+	</sql>
+	
+	<resultMap type="Stage" id="stage-resultmap">
+		<id column="STAGE_NO" property="stageNo"/>
+		<result column="STAGE_NAME" property="stageName"/>
+		<result column="STAGE_LOCATION" property="stageLocation"/>
+		<result column="STAGE_COST" property="stageCost"/>
+		<result column="STAGE_AREA" property="stageArea"/>
+		<result column="STAGE_INSTRUMENT" property="stageInstrument"/>
+		<result column="STAGE_CONTENT" property="stageContent"/>
+		<result column="STAGE_PARKING" property="stageParking"/>
+		<result column="STAGE_DRINKING" property="stageDrinking"/>
+		<result column="STAGE_FOOD_SELL" property="stageFoodSell"/>
+		<result column="STAGE_FOOD_RESTRICTION" property="stageFoodRestriction"/>
+		<result column="STAGE_RESERVATION" property="stageReservation"/>
+		<result column="STAGE_SELLER_ID" property="stageSellerId"/>
+		<result column="STAGE_REG_TIME" property="stageRegTime"/>
+		<result column="STAGE_RENTAL_DATE" property="stageRentalDate"/>
+		<result column="STAGE_START_TIME" property="stageStartTime"/>
+		<result column="STAGE_END_TIME" property="stageEndTime"/>
+	</resultMap>
+	<!-- 관리자용 별점 포함의 공연장 정보 -->
+	<select id="selectStageAndReview" resultMap="stage-review-resultmap">
+		SELECT	S.STAGE.NO,
+				S.STAGE_NAME,
+				S.STAGE_LOCATION,
+				S.STAGE_COST,
+				S.STAGE_AREA,
+				S.STAGE_INSTRUMENT,
+				S.STAGE_CONTENT,
+				S.STAGE_PARKING,
+				S.STAGE_DRINKING,
+				S.STAGE_FOOD_SELL,
+				S.STAGE_FOOD_RESTRICTION,
+				S.STAGE_RESERVATION,
+				S.STAGE_SELLER_ID,
+				S.STAGE_REG_TIME,
+				S.STAGE_RENTAL_DATE,
+				S.STAGE_START_TIME,
+				S.STAGE_END_TIME,
+				
+				R.STAGE_NO,
+				R.STAGE_REVIEW_USER_ID,
+				R.STAR_SCORE,
+				R.STAGE_COMMENT,
+				R.STAGE_COMMENT_REG_TIME
+		FROM	STAGE S, STAGE_REVIEW R
+		WHERE	S.STAGE_NO = R.STAGE_NO
+	</select>
+	
+	<select id="selectStageBySearch" parameterType="Map" resultMap="stage-review-resultmap">
+		SELECT	S.STAGE_NO,
+				S.STAGE_NAME,
+				S.STAGE_LOCATION,
+				S.STAGE_COST,
+				S.STAGE_AREA,
+				S.STAGE_INSTRUMENT,
+				S.STAGE_CONTENT,
+				S.STAGE_PARKING,
+				S.STAGE_DRINKING,
+				S.STAGE_FOOD_SELL,
+				S.STAGE_FOOD_RESTRICTION,
+				S.STAGE_RESERVATION,
+				S.STAGE_SELLER_ID,
+				S.STAGE_REG_TIME,
+				S.STAGE_RENTAL_DATE,
+				S.STAGE_START_TIME,
+				S.STAGE_END_TIME,
+				
+				R.STAGE_NO,
+				R.STAGE_REVIEW_USER_ID,
+				R.STAR_SCORE,
+				R.STAGE_COMMENT,
+				R.STAGE_COMMENT_REG_TIME
+		FROM	STAGE S, STAGE_REVIEW R
+		<where>
+			S.STAGE_NO = R.STAGE_NO (+)
+			<if test="reservation != null">
+			AND		S.STAGE_RESERVATION = #{reservation}		
+			</if>		
+			<if test="sDate != null">
+			AND		S.STAGE_REG_TIME >= #{sDate}
+			</if>
+			<if test="eDate != null">
+			AND		S.STAGE_REG_TIME &lt;= #{eDate}
+			</if>
+			<if test="userId != null">
+			AND		S.STAGE_SELLER_ID LIKE '%'||#{userId }||'%'
+			</if>
+		</where>		
+	</select>
+	
+	<resultMap type="Stage" id="stage-review-resultmap">
+		<id column="STAGE_NO" property="stageNo"/>
+		<result column="STAGE_NAME" property="stageName"/>
+		<result column="STAGE_LOCATION" property="stageLocation"/>
+		<result column="STAGE_COST" property="stageCost"/>
+		<result column="STAGE_AREA" property="stageArea"/>
+		<result column="STAGE_INSTRUMENT" property="stageInstrument"/>
+		<result column="STAGE_CONTENT" property="stageContent"/>
+		<result column="STAGE_PARKING" property="stageParking"/>
+		<result column="STAGE_DRINKING" property="stageDrinking"/>
+		<result column="STAGE_FOOD_SELL" property="stageFoodSell"/>
+		<result column="STAGE_FOOD_RESTRICTION" property="stageFoodRestriction"/>
+		<result column="STAGE_RESERVATION" property="stageReservation"/>
+		<result column="STAGE_SELLER_ID" property="stageSellerId"/>
+		<result column="STAGE_REG_TIME" property="stageRegTime"/>
+		<result column="STAGE_RENTAL_DATE" property="stageRentalDate"/>
+		<result column="STAGE_START_TIME" property="stageStartTime"/>
+		<result column="STAGE_END_TIME" property="stageEndTime"/>
+		
+		<collection property="reviewList" ofType="StageReview">
+			<id column="STAGE_NO" property="stageNo"/>
+			<id column="STAGE_REVIEW_USER_ID" property="stageCommentUserId"/>
+			<result column="STAR_SCORE" property="starScore"/>
+			<result column="STAGE_COMMENT" property="stageComment"/>
+			<result column="STAGE_COMMENT_REG_TIME" property="stageCommentRegTime"/>
+		</collection>
+	</resultMap>
+	
+	<!-- 공연장 insert -->
+	<insert id="insertStage" parameterType="Stage">
+		<selectKey keyProperty="stageNo" resultType="_int" order="BEFORE">
+			SELECT STAGE_NO_SEQ.nextval FROM dual
+		</selectKey>
+		insert into STAGE (<include refid="column-stage"/>)
+		values(#{stageNo}, #{stageName}, #{stageLocation}, #{stageCost},
+		#{stageArea}, #{stageInstrument}, #{stageContent}, #{stageParking}, 
+		#{stageDrinking}, #{stageFoodSell}, #{stageFoodRestriction}, 
+		#{stageReservation}, #{stageSellerId}, sysdate, #{stageRentalDate}, #{stageStartTime}, #{stageEndTime})
+	</insert>
+	
+	<select id="selectAllStage" resultMap="stage-resultmap" parameterType="map">
+	select <include refid="column-stage"/>
+	from (
+			select rownum, <include refid="column-stage"/>
+			from (
+					select *
+					from stage
+					order by stage_no desc
+			) where rownum &lt; = #{end}
+	) where rownum >= #{begin}	 
+	</select>
+	
+	<select id="selectStageByStageNo" parameterType="_int" resultMap="stage-resultmap">
+		select *
+		from stage
+		where stage_no=#{stageNo}
+	</select>
+	
+	<select id="selectStage" resultMap="stage-resultmap">
+		select *
+		from stage
+	</select>
+	
+	<select id="selectStageCount" resultType="_int">
+		select count(*) from stage
+	</select>
+	
+	<!-- 공연장 수정 -->
+	<update id="updateStage" parameterType="Stage">
+		UPDATE stage
+		<set>
+			<if test="stageName != null">STAGE_NAME = #{stageName},</if>
+			<if test="stageLocation != null">STAGE_LOCATION = #{stageLocation},</if>
+			<if test="stageCost != null">STAGE_COST = #{stageCost},</if>
+			<if test="stageArea != null">STAGE_AREA = #{stageArea},</if>
+			<if test="stageInstrument != null">STAGE_INSTRUMENT = #{stageInstrument},</if>
+			<if test="stageContent != null">STAGE_CONTENT = #{stageContent},</if>
+			<if test="stageParking != null">STAGE_PARKING = #{stageParking},</if>
+			<if test="stageDrinking != null">STAGE_DRINKING = #{stageDrinking},</if>
+			<if test="stageFoodSell != null">STAGE_FOOD_SELL = #{stageFoodSell},</if>
+			<if test="stageFoodRestriction != null">STAGE_FOOD_RESTRICTION = ${stageFoodRestriction},</if>
+			<if test="stageReservation != null">STAGE_RESERVATION = #{stageReservation},</if>
+			<if test="stageRentalDate != null">STAGE_RENTAL_DATE = #{stageRentalDate},</if>
+			<if test="stageStartTime != null">STAGE_START_TIME = #{stageStartTime},</if>
+			<if test="stageEndTime != null">STAGE_END_TIME = #{stageEndTime},</if>
+			<if test="stageSellerId != null">STAGE_SELLER_ID = #{stageSellerId}</if>
+		</set>
+		WHERE STAGE_NO = #{stageNo}
+	</update>
+	<!-- 공연장 번호로 공연장 예약상태 변경 -->
+	<update id="updateStageForStageReservation" parameterType="map">
+		UPDATE stage
+		SET STAGE_RESERVATION = #{stageReservation}
+		WHERE STAGE_NO = #{stageNo}
+	</update>
+	
+	<select id="selectStageCountByLocation" resultType="_int" parameterType="map">
+		select count(*) 
+		from (	select <include refid="column-stage"/>
+					 		from stage
+					 		where stage_rental_date &gt;= #{startDate}  
+					 		and stage_rental_date &lt;= #{endDate}
+					 		)
+		where stage_location like '%'||#{stageLocation}||'%'
+		
+	</select>
+	
+	<select id="selectStageByStageLocation" parameterType="map" resultMap="stage-resultmap">
+		select <include refid="column-stage"/>
+		from (
+			select rownum rn, <include refid="column-stage"/>
+			from (
+					select *
+					from (	select *
+					 		from stage
+					 		where stage_rental_date &gt;= #{startDate}  
+					 		and stage_rental_date &lt;= #{endDate}
+					 		)
+					where stage_location like '%'||#{stageLocation}||'%'
+					order by stage_no desc
+			) where rownum &lt; = #{end}
+		) where rn >= #{begin}	 
+	</select>
+	
+	<select id="selectStageCountByName" resultType="_int" parameterType="map">
+		select count(*) 
+		from (	select <include refid="column-stage"/>
+				from stage
+				where STAGE_RENTAL_DATE &gt;= #{startDate}  
+				and STAGE_RENTAL_DATE &lt;= #{endDate}
+		)
+		where STAGE_NAME like '%'||#{stageName}||'%'
+		</select>
+	
+	<select id="selectStageByName" parameterType="map" resultMap="stage-resultmap">
+		select <include refid="column-stage"/>
+		from (
+			select rownum rn, <include refid="column-stage"/>
+			from (
+					select *
+					from (	select *
+					 		from stage
+					 		where stage_rental_date &gt;= #{startDate}  
+					 		and stage_rental_date &lt;= #{endDate}
+					 		order by stage_no desc
+					 		)
+					where STAGE_NAME like '%'||#{stageName}||'%'
+			) where rownum &lt; = #{end}
+		) where rn >= #{begin}
+	</select>
+	
+	<select id="selectStageCountById" resultType="_int" parameterType="map">
+		select count(*) 
+		from (	select <include refid="column-stage"/>
+				from stage
+				where STAGE_RENTAL_DATE &gt;= #{startDate}  
+				and STAGE_RENTAL_DATE &lt;= #{endDate}
+		)
+		where STAGE_SELLER_ID like '%'||#{stageSellerId}||'%'
+		</select>
+	
+	<select id="selectStageById" parameterType="map" resultMap="stage-resultmap">
+		select <include refid="column-stage"/>
+		from (
+			select rownum rn, <include refid="column-stage"/>
+			from (
+					select *
+					from (	select *
+					 		from stage
+					 		where stage_rental_date &gt;= #{startDate}  
+					 		and stage_rental_date &lt;= #{endDate}
+					 		order by stage_no desc
+					 		)
+					where STAGE_SELLER_ID like '%'||#{stageSellerId}||'%'
+			) where rownum &lt; = #{end}
+		) where rn >= #{begin}
+	</select>
+	
+	<select id="selectStageCountByStageDate" resultType="_int" parameterType="map">
+		select count(*) 
+		from stage
+		where stage_rental_date &gt;= #{startDate}
+		and stage_rental_date &lt;= #{endDate}
+	</select>
+	
+	<!-- 공연장 번호를 받아서 delete -->
+	<delete id="deleteStageByStageNo" parameterType="_int">
+		delete from STAGE
+		where stage_no = #{stageNo}
+	</delete>
+	
+	
+	<select id="selectStageByStageDate" resultMap="stage-resultmap" parameterType="map">
+	select <include refid="column-stage"/>
+		from (
+			select rownum, <include refid="column-stage"/>
+			from (
+					select <include refid="column-stage"/>
+					from stage
+					where stage_rental_date &gt;= #{startDate}
+					and stage_rental_date &lt;= #{endDate}
+					order by stage_no desc
+			) where rownum &lt; = #{end}
+		) where rownum >= #{begin}
+	
+	</select>
+	
+	<select id="selectStageCountOnlyId" resultType="_int" parameterType="String">
+		select count(*) 
+		from stage
+		where STAGE_SELLER_ID like '%'||#{stageSellerId}||'%'
+		</select>
+	
+	<select id="selectStageOnlyId" parameterType="map" resultMap="stage-resultmap">
+		select <include refid="column-stage"/>
+		from (
+			select rownum rn, <include refid="column-stage"/>
+			from (
+					select *
+					from stage
+					where STAGE_SELLER_ID like '%'||#{stageSellerId}||'%'
+					order by stage_no desc
+			) where rownum &lt; = #{end}
+		) where rn >= #{begin}
+	</select>
+	
+	<select id="selectStageCountOnlyLocation" resultType="_int" parameterType="String">
+		select count(*) 
+		from stage
+		where stage_location like '%'||#{stageLocation}||'%'
+		</select>
+	
+	<select id="selectStageOnlyLocation" parameterType="map" resultMap="stage-resultmap">
+		select <include refid="column-stage"/>
+		from (
+			select rownum rn, <include refid="column-stage"/>
+			from (
+					select *
+					from stage
+					where stage_location like '%'||#{stageLocation}||'%'
+					order by stage_no desc
+			) where rownum &lt; = #{end}
+		) where rn >= #{begin}
+	</select>
+	
+	<select id="selectStageCountOnlyName" resultType="_int" parameterType="String">
+		select count(*) 
+		from stage
+		where STAGE_NAME like '%'||#{stageName}||'%'
+		</select>
+	
+	<select id="selectStageOnlyName" parameterType="map" resultMap="stage-resultmap">
+		select <include refid="column-stage"/>
+		from (
+			select rownum rn, <include refid="column-stage"/>
+			from (
+					select *
+					from stage
+					where STAGE_NAME like '%'||#{stageName}||'%'
+					order by stage_no desc
+			) where rownum &lt; = #{end}
+		) where rn >= #{begin}
+	</select>
+	
+	<select id="selectStageCountByLocationAndName" resultType="_int" parameterType="map">
+		select count(*) 
+		from( 
+			select *
+			from	(	select <include refid="column-stage"/>
+					from stage
+					where STAGE_RENTAL_DATE &gt;= #{startDate}  
+					and STAGE_RENTAL_DATE &lt;= #{endDate}
+			) 
+			where STAGE_LOCATION like '%'||#{stageLocation}||'%'
+		)
+		where STAGE_NAME like '%'||#{stageName}||'%'
+		</select>
+	
+	<select id="selectStageByLocationAndName" parameterType="map" resultMap="stage-resultmap">
+		select <include refid="column-stage"/>
+		from (
+			select rownum rn, <include refid="column-stage"/>
+			from (
+					select *
+					from ( 
+							select *
+							from	(	select <include refid="column-stage"/>
+										from stage
+										where STAGE_RENTAL_DATE &gt;= #{startDate} and STAGE_RENTAL_DATE &lt;= #{endDate}
+										order by stage_no desc
+							) where STAGE_LOCATION like '%'||#{stageLocation}||'%'
+					) where STAGE_NAME like '%'||#{stageName}||'%'
+			) where rownum &lt; = #{end}
+		) where rn >= #{begin}
+	</select>
+	
+	<select id="selectStageCountByLocationAndNameNoDate" resultType="_int" parameterType="map">
+		select count(*) 
+		from( 
+			select *
+			from stage
+			where STAGE_LOCATION like '%'||#{stageLocation}||'%'
+		)
+		where STAGE_NAME like '%'||#{stageName}||'%'
+		</select>
+	
+	<select id="selectStageByLocationAndNameNoDate" parameterType="map" resultMap="stage-resultmap">
+		select <include refid="column-stage"/>
+		from (
+			select rownum rn, <include refid="column-stage"/>
+			from (
+					select *
+					from ( 
+							select *
+							from stage
+							where STAGE_LOCATION like '%'||#{stageLocation}||'%'
+					) where STAGE_NAME like '%'||#{stageName}||'%'
+			) where rownum &lt; = #{end}
+		) where rn >= #{begin}
+	</select>
+	
+	<select id="selectStageCountByLocationAndIDNoDate" resultType="_int" parameterType="map">
+		select count(*) 
+		from( 
+			select *
+			from stage
+			where STAGE_LOCATION like '%'||#{stageLocation}||'%'
+		)
+		where STAGE_SELLER_ID like '%'||#{stageSellerId}||'%'
+		</select>
+	
+	<select id="selectStageByLocationAndIDNoDate" parameterType="map" resultMap="stage-resultmap">
+		select <include refid="column-stage"/>
+		from (
+			select rownum rn, <include refid="column-stage"/>
+			from (
+					select *
+					from ( 
+							select *
+							from stage
+							where STAGE_LOCATION like '%'||#{stageLocation}||'%'
+					) where STAGE_SELLER_ID like '%'||#{stageSellerId}||'%'
+			) where rownum &lt; = #{end}
+		) where rn >= #{begin}
+	</select>
+	
+	<select id="selectStageCountByNameAndIdNoDate" resultType="_int" parameterType="map">
+		select count(*) 
+		from( 
+			select *
+			from stage
+			where STAGE_NAME like '%'||#{stageName}||'%'
+		)
+		where STAGE_SELLER_ID like '%'||#{stageSellerId}||'%'
+		</select>
+	
+	<select id="selectStageByNameAndIdNoDate" parameterType="map" resultMap="stage-resultmap">
+		select <include refid="column-stage"/>
+		from (
+			select rownum rn, <include refid="column-stage"/>
+			from (
+					select *
+					from ( 
+							select *
+							from stage
+							where STAGE_NAME like '%'||#{stageName}||'%'
+					) where STAGE_SELLER_ID like '%'||#{stageSellerId}||'%'
+			) where rownum &lt; = #{end}
+		) where rn >= #{begin}
+	</select>
+	
+	<!-- 공급자 id로 등록된 공연장 가져오기 -->
+	<select id="selectStagebyStageSellerId" parameterType="String" resultMap="stage-resultmap">
+		select *
+		from stage
+		where stage_seller_id = #{stageSellerId}
+		order by stage_no desc
+	</select>
+	
+	<!-- 공급자가 예약취소할 경우 예약 가능 여부 변경 -->
+	<update id="rejectStageByStageNo" parameterType="_int">
+		update stage
+		set stage_reservation = 1
+		where stage_no = #{stageNo}
+	</update>
+	
+	<!-- 내가 작성한 글 -->
+	<select id="selectMyStage" parameterType="String" resultMap="stage-resultmap">
+		select *
+		from stage
+		where STAGE_SELLER_ID = #{stageSellerId}
+	</select>
+</mapper>

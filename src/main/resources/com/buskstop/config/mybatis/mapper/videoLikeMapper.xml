@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.videoLikeMapper">
+	
+	<resultMap type="video" id="video-resultmap">
+		<id column="video_no" property="videoNo"/>
+		<result column="video_title" property="videoTitle"/>
+		<result column="video_link" property="videoLink"/>
+		<result column="video_location" property="videoLocation"/>
+		<result column="video_content" property="videoContent"/>
+		<result column="video_date" property="videoDate"/>
+		<result column="video_artist" property="videoArtist"/>
+		<result column="video_category" property="videoCategory"/>
+		<result column="video_user_id" property="videoUserId"/>
+		<result column="video_reg_time" property="videoRegTime"/>
+		<result column="video_hits" property="videoHits"/>
+	</resultMap>
+	
+	<insert id="insertVideoLike" parameterType="videoLike">
+		INSERT INTO VIDEO_LIKE
+		(VIDEO_LIKE_NO, VIDEO_LIKE_USER_ID)
+		VALUES
+		(#{videoLikeNum},#{videoLikeUserId})
+	</insert>
+	<delete id="deleteVideoLike" parameterType="videoLike">
+		DELETE FROM VIDEO_LIKE
+		WHERE VIDEO_LIKE_NO = #{videoLikeNum} AND VIDEO_LIKE_USER_ID = #{videoLikeUserId}
+	</delete>
+	
+	<delete id="deleteVideoLikeByVideoNo">
+		DELETE FROM VIDEO_LIKE
+		WHERE VIDEO_LIKE_NO = #{value}
+	</delete>
+	
+	
+	<resultMap type="videoLike" id="videoLike-resultmap">
+		<id column="VIDEO_LIKE_NO" property="videoLikeNum"/>
+		<result column="VIDEO_LIKE_USER_ID" property="videoLikeUserId"/>
+		
+	</resultMap>
+		
+	<select id="selectLikeUserByVideoNum" parameterType="int" resultMap="videoLike-resultmap">
+		SELECT 
+			VIDEO_LIKE_NO, VIDEO_LIKE_USER_ID
+		FROM VIDEO_LIKE
+		WHERE VIDEO_LIKE_NO = #{value}
+	</select>
+		
+	<select id="selectVideoByVideoLikeId" parameterType="string" resultMap="video-resultmap">
+		SELECT	v.video_no,
+				v.video_title,
+				v.video_link,
+				v.video_location,
+				v.video_content,
+				v.video_date,
+				v.video_artist,
+				v.video_category,
+				v.video_user_id,
+				v.video_reg_time,
+				v.video_hits
+		FROM	VIDEO V, VIDEO_LIKE L
+		WHERE	V.VIDEO_NO = L.VIDEO_LIKE_NO (+)
+		AND		L.VIDEO_LIKE_USER_ID = #{value}
+	</select>
+</mapper>

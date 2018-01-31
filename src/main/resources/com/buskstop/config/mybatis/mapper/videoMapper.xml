@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.videoMapper">
+	
+	<!-- sql 설정 -->
+	<sql id="video-column-sql">
+		video_no,
+		video_title,
+		video_link,
+		video_location,
+		video_content,
+		video_date,
+		video_artist,
+		video_category,
+		video_user_id,
+		video_reg_time,
+		video_hits
+	</sql>
+	
+	<sql id="video-select-sql">
+		SELECT <include refid="video-column-sql"/>
+		FROM	VIDEO
+	</sql>
+	
+	<resultMap type="video" id="video-resultmap">
+		<id column="video_no" property="videoNo"/>
+		<result column="video_title" property="videoTitle"/>
+		<result column="video_link" property="videoLink"/>
+		<result column="video_location" property="videoLocation"/>
+		<result column="video_content" property="videoContent"/>
+		<result column="video_date" property="videoDate"/>
+		<result column="video_artist" property="videoArtist"/>
+		<result column="video_category" property="videoCategory"/>
+		<result column="video_reg_time" property="videoRegTime"/>
+		<result column="video_user_id" property="videoUserId"/>
+		<result column="video_reg_time" property="videoRegTime"/>
+		<result column="video_hits" property="videoHits"/>
+	</resultMap>
+	
+	<insert id="insertVideo" parameterType="Video">
+		<selectKey keyProperty="videoNo" resultType="_int" order="BEFORE">
+			select VIDEO_NO_SEQ.nextval from dual
+		</selectKey>
+		INSERT INTO video
+		VALUES		(#{videoNo}, 
+					 #{videoTitle}, 
+					 #{videoLink}, 
+					 #{videoLocation}, 
+					 #{videoContent}, 
+					 #{videoDate}, 
+					 #{videoArtist}, 
+					 #{videoCategory}, 
+					 #{videoUserId},
+					 sysdate,
+					 #{videoHits}
+					 )
+	</insert>
+	
+	<update id="updateVideo" parameterType="video">
+		UPDATE 	video
+		SET		video_title = #{videoTitle},
+				video_link = #{videoLink},
+				video_location = #{videoLocation},
+				video_content = #{videoContent},
+				video_date = #{videoDate},
+				video_artist = #{videoArtist},
+				video_category = #{videoCategory},
+				video_user_id = #{videoUserId},
+				video_reg_time = #{videoRegTime},
+				video_hits = #{videoHits}
+		WHERE 	video_no = #{videoNo}
+	</update>
+	
+	<delete id="deleteVideoByVideoNum" parameterType="_int">
+		DELETE 
+		FROM	video 
+		WHERE 	video_no = #{value}
+	</delete>
+	
+	<!-- ######## 조회 ######### -->
+	
+	<!-- 영상 번호로 검색 -->
+	<select id="selectVideoByVideoNo" parameterType="_int" resultMap="video-resultmap">
+		<include refid="video-select-sql"/>
+		WHERE	video_no = #{value}	
+	</select>
+	
+	<select id="selectVideo" resultMap="video-resultmap">
+		<include refid="video-select-sql"/>
+	</select>
+
+	<!-- 카테고리별 검색 -->
+	<select id="selectAllVideoByCategory" parameterType="string" resultMap="video-resultmap">
+		<include refid="video-select-sql"/>
+		WHERE VIDEO_CATEGORY = #{value}
+	</select>
+	
+	<!-- 제목으로 영상 검색 -->
+	<select id="selectVideoByTitleAndCategory" parameterType="map" resultMap="video-resultmap">
+		<include refid="video-select-sql"/>
+		WHERE VIDEO_CATEGORY = #{videoCategory} AND VIDEO_TITLE like '%'||#{videoTitle}||'%'
+	</select>
+	
+	<!-- 아티스트로 영상 검색 -->
+	<select id="selectVideoByArtistAndCategory" parameterType="map" resultMap="video-resultmap">
+		<include refid="video-select-sql"/>
+		WHERE VIDEO_CATEGORY = #{videoCategory} AND VIDEO_ARTIST like '%'||#{videoArtist}||'%'
+	</select>
+	
+	<!-- 게시자 Id로 영상 검색 -->
+	<select id="selectVideoByUserIdAndCategory" parameterType="map" resultMap="video-resultmap">
+		<include refid="video-select-sql"/>
+		WHERE VIDEO_CATEGORY = #{videoCategory} AND VIDEO_USER_ID like '%id%'
+	</select>
+	
+	<!-- 내용으로 영상 검색 -->
+	<select id="selectVideoByContentAndCategory" parameterType="map" resultMap="video-resultmap">
+		<include refid="video-select-sql"/>
+		WHERE VIDEO_CATEGORY = #{videoCategory} AND VIDEO_CONTENT like '%'||#{videoContent}||'%'
+	</select>
+	
+	<!-- 내가 올린 글 -->
+	<select id="selectMyVideo" parameterType="String" resultMap="video-resultmap">
+		<include refid="video-select-sql"/>
+		WHERE VIDEO_USER_ID = #{videoUserId}
+	</select>
+	
+	<!-- 게시자 Id로만 영상 검색 -->
+	<select id="selectVideoByArtistId" parameterType="map" resultMap="video-resultmap">
+		<include refid="video-select-sql"/>
+		WHERE VIDEO_USER_ID = #{videoUserId}
+		</select>
+		
+	<resultMap type="video" id="videoNo-likeCount-resultmap">
+		<id column="VIDEO_LIKE_NO" property="videoNo"/>
+		<result column="COUNT(*)" property="likeCount"/>
+	</resultMap>
+	
+	<select id="selectVideoByLikeCount" resultMap="videoNo-likeCount-resultmap">
+		SELECT 	VIDEO_LIKE_NO, COUNT(*)
+		FROM 	VIDEO_LIKE
+		GROUP BY VIDEO_LIKE_NO
+		ORDER BY COUNT(*) DESC
+	</select>
+	
+	<select id="selectUserVideoCount" parameterType="string" resultType="_int">
+		SELECT	COUNT(*)
+		FROM	VIDEO
+		WHERE 	video_user_id = #{value}
+	
+	</select>
+	
+</mapper>

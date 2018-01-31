@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.buskstop.config.mybatis.mapper.premiumStageMapper">
+	
+	<sql id="premiumStage-column-sql">
+		ESTABLISH_NO,
+		OPERATOR_USER_ID,
+		OPERATOR_NO,
+		STAGE_NAME,
+		STAGE_LOCATION,
+		STAGE_AREA,
+		STAGE_INSTRUMENT,
+		STAGE_CONTENT,
+		STAGE_PARKING,
+		STAGE_DRINKING,
+		STAGE_FOOD_SELL,
+		STAGE_FOOD_RESTRICTION,
+		STAGE_IMAGE
+	</sql>
+	
+	<sql id="premium-select-sql">
+		SELECT <include refid="premiumStage-column-sql"/>
+		FROM PREMIUM_STAGE
+	</sql>
+	
+	<resultMap type="PremiumStage" id="premiumStage-resultmap">
+		<id column="ESTABLISH_NO" property="establishNum"/>
+		<result column="OPERATOR_USER_ID" property="operatorUserId"/>
+		<result column="OPERATOR_NO" property="operatorNo"/>
+		<result column="STAGE_NAME" property="stageName"/>
+		<result column="STAGE_LOCATION" property="stageLocation"/>
+		<result column="STAGE_AREA" property="stageArea"/>
+		<result column="STAGE_INSTRUMENT" property="stageInstrument"/>
+		<result column="STAGE_CONTENT" property="stageContent"/>
+		<result column="STAGE_PARKING" property="stageParking"/>
+		<result column="STAGE_DRINKING" property="stageDrinking"/>
+		<result column="STAGE_FOOD_SELL" property="stageFoodSell"/>
+		<result column="STAGE_FOOD_RESTRICTION" property="stageFoodRestriction"/>
+		<result column="STAGE_IMAGE" property="stageImage"/>
+	</resultMap>
+		
+	<insert id="insertPremiumStage" parameterType="PremiumStage">
+		INSERT INTO PREMIUM_STAGE
+		(<include refid="premiumStage-column-sql"/>)
+		VALUES(
+			#{establishNum},
+			#{operatorUserId},
+			#{operatorNo},
+			#{stageName},
+			#{stageLocation},
+			#{stageArea},
+			#{stageInstrument},
+			#{stageContent},
+			#{stageParking},
+			#{stageDrinking},
+			#{stageFoodSell},
+			#{stageFoodRestriction},
+			#{stageImage}
+		)
+	</insert>
+	
+	<update id="updateStageSupplier" parameterType="PremiumStage">
+		UPDATE	PREMIUM_STAGE
+		SET		OPERATOR_USER_ID = #{operatorUserId},
+				OPERATOR_NO = #{operatorNo},
+				STAGE_NAME = #{stageName},
+				STAGE_LOCATION = #{stageLocation},
+				STAGE_AREA = #{stageArea},
+				STAGE_INSTRUMENT = #{stageInstrument},
+				STAGE_CONTENT = #{stageContent},
+				STAGE_PARKING = #{stageParking},
+				STAGE_DRINKING = #{stageDrinking},
+				STAGE_FOOD_SELL = #{stageFoodSell},
+				STAGE_FOOD_RESTRICTION = #{stageFoodRestriction},
+				STAGE_IMAGE = #{stageImage}
+		WHERE 	ESTABLISH_NO = #{establishNum}				
+	</update>
+	
+	<delete id="deleteStageByEstablishNum" parameterType="_int">
+		DELETE	
+		FROM 	PREMIUM_STAGE
+		WHERE	ESTABLISH_NO = #{value}
+	</delete>
+	
+	<select id="selectStageNameById" parameterType="string" resultType="string">
+		SELECT 	STAGE_NAME
+		FROM	PREMIUM_STAGE
+		WHERE 	OPERATOR_USER_ID = #{value}
+	</select>
+	
+	<select id="selectSupplierById" parameterType="string" resultMap="premiumStage-resultmap">
+		<include refid="premium-select-sql"/>
+		WHERE	OPERATOR_USER_ID = #{value}
+	</select>
+	
+	<select id="selectStageByEstablishNum" parameterType="_int" resultMap="premiumStage-resultmap">
+		<include refid="premium-select-sql"/>
+		WHERE 	ESTABLISH_NO = #{value}
+	</select>
+	
+	<!-- 모든 프리미엄스테이지의 개수 -->
+	<select id="selectAllPremiumStageCount" resultType="_int">
+		SELECT	COUNT(*)
+		FROM	PREMIUM_STAGE
+	</select>
+	
+	<select id="selectAllPremiumStage" parameterType="map" resultMap="premiumStage-resultmap">
+		SELECT <include refid="premiumStage-column-sql"/>
+		FROM(
+			SELECT ROWNUM RN, <include refid="premiumStage-column-sql"/>
+			FROM(
+				SELECT 	<include refid="premiumStage-column-sql"/>
+				FROM	PREMIUM_STAGE
+				)
+			WHERE	ROWNUM &lt;= #{end}
+		)
+		WHERE RN >= #{begin}
+	</select>
+	
+	<select id="selectSearchStageCount" parameterType="Map" resultType="_int">
+		SELECT	COUNT(P.ESTABLISH_NO)
+		FROM 	PREMIUM_STAGE P , PREMIUM_STAGE_OPTION O
+		<where>
+				P.ESTABLISH_NO = O.ESTABLISH_NO(+)
+			<if test="nameSearch !=null">
+				AND P.STAGE_NAME LIKE '%'||#{nameSearch}||'%'
+			</if>
+			<if test="locationSearch != null">
+				AND P.STAGE_LOCATION LIKE '%'||#{locationSearch}||'%' 
+			</if>
+			<if test="idSearch != null">
+				AND P.OPERATOR_USER_ID = #{idSearch}
+			</if>
+			<if test="startDate != null">
+				AND O.STAGE_RENTAL_DATE	>= #{startDate}
+			</if>
+			<if test="endDate !=null ">
+				AND O.STAGE_RENTAL_DATE &lt;= #{endDate}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectSearchStage" parameterType="Map" resultMap="premiumStage-resultmap">
+		SELECT 	P.ESTABLISH_NO,
+				P.OPERATOR_USER_ID,
+				P.OPERATOR_NO,
+				P.STAGE_NAME,
+				P.STAGE_LOCATION,
+				P.STAGE_AREA,
+				P.STAGE_COST,
+				P.STAGE_INSTRUMENT,
+				P.STAGE_CONTENT,
+				P.STAGE_PARKING,
+				P.STAGE_DRINKING,
+				P.STAGE_FOOD_SELL,
+				P.STAGE_FOOD_RESTRICTION,
+				P.STAGE_IMAGE
+		FROM	PREMIUM_STAGE P, PREMIUM_STAGE_OPTION O
+		<where>
+				P.ESTABLISH_NO = O.ESTABLISH_NO(+)
+			<if test="nameSearch !=null">
+				AND P.STAGE_NAME LIKE '%'||#{nameSearch}||'%'
+			</if>
+			<if test="locationSearch != null">
+				AND P.STAGE_LOCATION LIKE '%'||#{locationSearch}||'%'
+			</if>
+			<if test="idSearch != null">
+				AND P.OPERATOR_USER_ID = #{idSearch}
+			</if>
+			<if test="startDate != null">
+				AND O.STAGE_RENTAL_DATE	>= #{startDate}
+			</if>
+			<if test="endDate !=null ">
+				AND O.STAGE_RENTAL_DATE &lt;= #{endDate}
+			</if>	
+		</where>
+	</select>
+	
+	<!-- 관리자용 -->
+	<select id="selectPremiumStage" resultMap="premiumStage-resultmap">
+		<include refid="premium-select-sql"/>
+	</select>
+	
+	<select id="selectPremiumStageBySearch" parameterType="Map" resultMap="premiumStage-resultmap">
+		SELECT	<include refid="premiumStage-column-sql"/>
+		FROM	PREMIUM_STAGE
+		<where>
+			<if test="establishNum != null">
+				ESTABLISH_NO = #{establishNum }
+			</if>
+			<if test="operatorUserId != null">
+				OPERATOR_USER_ID LIKE '%'||#{operatorUserId }||'%'
+			</if>
+			<if test="stageLocation != null">
+				STAGE_LOCATION LIKE '%'||#{stageLocation }||'%'
+			</if>
+		</where>
+	</select>
+</mapper>

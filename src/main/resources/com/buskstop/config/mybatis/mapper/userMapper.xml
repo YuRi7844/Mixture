@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.userMapper">
+
+	<!-- sql 설정 -->
+	<sql id="user-column-sql">
+		user_id, user_name, user_password, user_address, user_phone_num, user_email
+	</sql>
+	
+	<sql id="user-select-sql">
+		SELECT <include refid="user-column-sql"/>
+		FROM	USERS
+	</sql>
+	
+	<resultMap type="User" id="user-resultmap">
+		<id column="user_id" property="userId"/>
+		<result column="user_name" property="userName"/>
+		<result column="user_password" property="password"/>
+		<result column="user_address" property="userAddress"/>
+		<result column="user_phone_num" property="userPhoneNum"/>
+		<result column="user_email" property="email"/>
+	</resultMap>
+	
+	<resultMap type="User" id="user-authority-resultmap">
+		<id column="user_id" property="userId"/>
+		<result column="user_name" property="userName"/>
+		<result column="user_password" property="password"/>
+		<result column="user_address" property="userAddress"/>
+		<result column="user_phone_num" property="userPhoneNum"/>
+		<result column="user_email" property="email"/>
+		<result column="drop_check" property="outCheck"/>
+	</resultMap>
+	
+	<insert id="insertUser" parameterType="user">
+		INSERT INTO USERS
+		(<include refid="user-column-sql"/>)
+		VALUES (#{userId}, #{userName}, #{password}, #{userAddress}, #{userPhoneNum},#{email})
+	</insert>
+	
+	<update id="updateUser" parameterType="user">
+		UPDATE	USERS 
+		SET		USER_PASSWORD = #{password},
+				USER_NAME = #{userName},
+				USER_ADDRESS = #{userAddress},
+				USER_PHONE_NUM = #{userPhoneNum},
+				USER_EMAIL = #{email}
+		WHERE	USER_ID = #{userId}
+	</update>
+	
+	<update id="dropUserById" parameterType="string">
+		UPDATE 	USERS
+		SET		DROP_CHECK = 1
+		WHERE 	USER_ID = #{userId}
+	</update>
+	
+	<select id="selectUserById" parameterType="string" resultMap="user-resultmap">
+		<include refid="user-select-sql"/>
+		WHERE user_id = #{value}
+	</select>
+	
+	<select id="selectDropById" parameterType="string" resultType="_int">
+		SELECT 	DROP_CHECK
+		FROM	USERS
+		WHERE 	USER_ID = #{value}	
+	</select> 
+	
+	<select id="selectUserIdByEmail" parameterType="string" resultType="string">
+		SELECT	USER_ID
+		FROM 	USERS
+		WHERE 	USER_EMAIL = #{value}
+	</select>
+	
+	<select id="selectAllUserAndAuthority" resultMap="user-authority-resultmap">
+		SELECT 	U.USER_ID,
+				U.USER_NAME,
+				U.USER_PASSWORD,
+				U.USER_ADDRESS,
+				U.USER_PHONE_NUM,
+				U.USER_EMAIL,
+				U.DROP_CHECK,
+				A.AUTHORITY				
+		FROM	USERS U, AUTHORITY A
+		WHERE	U.USER_ID = A.USER_ID (+)
+	</select>
+	
+	<select id="selectByAuthorityAndUserId" parameterType="Map" resultMap="user-authority-resultmap">
+		SELECT 	U.USER_ID,
+				U.USER_NAME,
+				U.USER_PASSWORD,
+				U.USER_ADDRESS,
+				U.USER_PHONE_NUM,
+				U.USER_EMAIL,
+				U.DROP_CHECK,
+				A.AUTHORITY				
+		FROM	USERS U, AUTHORITY A
+		<where>
+				A.AUTHORITY = #{authority}
+		AND		U.USER_ID = A.USER_ID (+)
+			<if test="search != null">
+		AND 	U.USER_ID LIKE '%'||#{search}||'%'
+			</if>
+		</where>
+	</select>
+</mapper>

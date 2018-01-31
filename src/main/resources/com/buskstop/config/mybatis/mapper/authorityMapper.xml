@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.buskstop.config.mybatis.mapper.authorityMapper">
+	
+	
+	<sql id="authority-column-sql">
+		USER_ID, AUTHORITY
+	</sql>
+	
+	<sql id="authority-select-sql">
+		SELECT	<include refid="authority-column-sql"/>
+		FROM	 AUTHORITY
+	</sql>
+	
+	<resultMap id="authority-resultmap" type="authority">
+		<id column="user_id" property="userId"/>
+		<result column="authority" property="authority"/>
+	</resultMap>
+	
+	<insert id="insertAuthority">
+		INSERT INTO AUTHORITY
+		(<include refid="authority-column-sql"/>)
+		VALUES (#{userId}, #{authority})
+	</insert>
+	
+	<update id="updateAuthority" parameterType="authority">
+		UPDATE AUTHORITY 
+		SET AUTHORITY = #{authority}
+		WHERE user_id = #{userId}
+	</update>
+	
+	<delete id="deleteAuthorityById" parameterType="string">
+		DELETE 
+		FROM AUTHORITY
+		WHERE	user_id = #{value}
+	</delete>
+	
+	<select id="selectAuthoritiesByUserId" parameterType="string" resultMap="authority-resultmap">
+		<include refid="authority-select-sql"/>
+		WHERE USER_ID = #{value}
+	</select>
+	
+	<select id="selectAuthority" parameterType="Authority" resultMap="authority-resultmap">
+		<include refid="authority-select-sql"/>
+		WHERE	USER_ID = #{userId} 
+		AND		AUTHORITY = #{authority}
+	</select>
+</mapper>

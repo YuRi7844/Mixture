@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.stageReservationMapper">
+
+	<sql id="column-stageReservation">
+		RENTAL_NO,
+		RENTAL_USER_ID,
+		STAGE_NO,
+		RENTAL_DATE,
+		RENTAL_STATE_CODE,
+		RENTAL_REG_TIME
+	</sql>
+
+	<resultMap type="StageReservation" id="stage-reservation-resultmap">
+		<id column="RENTAL_NO" property="rentalNoNumber"/>
+		<result column="RENTAL_USER_ID" property="rentalUserId"/>
+		<result column="STAGE_NO" property="stageNo"/>
+		<result column="RENTAL_DATE" property="rentalDate"/>
+		<result column="RENTAL_STATE_CODE" property="rentalStateCode"/>
+		<result column="RENTAL_REG_TIME" property="rentalRegTime"/>
+	</resultMap>
+	
+	<!-- 공연장 예약 등록 -->
+	<insert id="insertStageReservation" parameterType="StageReservation">
+		<selectKey keyProperty="rentalNoNumber" resultType="_int" order="BEFORE">
+			SELECT RENTAL_NO_SEQ.nextval FROM dual
+		</selectKey>
+		insert into STAGE_RESERVATION (<include refid="column-stageReservation"/>)
+		values(#{rentalNoNumber}, #{rentalUserId}, #{stageNo}, #{rentalDate},
+		#{rentalStateCode}, sysdate)
+	</insert>
+	
+	<!-- 공연장 번호를 받아서 예약 진행 중인 것이 있으면 조회 -->
+	<select id="selectStageReservationByStageNoforRentalStateCode" resultMap="stage-reservation-resultmap" parameterType="_int">
+		select *
+		from STAGE_RESERVATION
+		where STAGE_NO = #{stageNo}
+		and RENTAL_STATE_CODE = 1
+	</select>
+	
+	<!-- 사용자가 예약 취소 -->
+	<update id="cancelStageReservation" parameterType="_int">
+		update STAGE_RESERVATION
+		set RENTAL_STATE_CODE = 0
+		where STAGE_NO = #{stageNo}
+		and RENTAL_STATE_CODE = 1
+	</update>
+	
+	<!-- 공연장번호로 공연장예약정보 조회 -->
+	<select id="selectStageReservationByStageNo" parameterType="_int" resultMap="stage-reservation-resultmap">
+		select *
+		from STAGE_RESERVATION
+		where STAGE_NO = #{stageNo}
+		order by RENTAL_NO desc
+	</select>
+	
+	<!-- 공급자가 예약 승인 -->
+	<update id="successStageReservation" parameterType="_int">
+		update STAGE_RESERVATION
+		set RENTAL_STATE_CODE = 2
+		where RENTAL_NO = #{rentalNo}
+	</update>
+	
+	<!-- 공급자가 예약 거절 -->
+	<update id="rejectStageReservation" parameterType="_int">
+		update STAGE_RESERVATION
+		set RENTAL_STATE_CODE = 0
+		where RENTAL_NO = #{rentalNo}
+	</update>
+	
+	<!-- 사용자가 신청한 예약 내역 조회 -->
+	<select id="selectMyStageApply" parameterType="String" resultMap="stage-reservation-resultmap">
+		select *
+		from STAGE_RESERVATION
+		where RENTAL_USER_ID = #{rentalUserId}
+		order by rental_no desc
+	</select>
+	
+	<!-- 대관번호로 공연장 예약정보 뽑아오기 -->
+	<select id="selectStageReservationByRentalNo" parameterType="_int" resultMap="stage-reservation-resultmap">
+		select *
+		from STAGE_RESERVATION
+		where rental_no = #{rentalNo}
+	</select>
+	
+	<!-- 사용자가 예약 신청 취소 -->
+	<update id="cancelStageReservationByRentalNo" parameterType="_int">
+		update stage_reservation
+		set rental_state_code = 3
+		where rental_no = #{rentalNo}
+	</update>
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.stageImageMapper">
+
+	<sql id="column-stageImage">
+		STAGE_IMAGE_NO,
+		STAGE_IMAGE_LOCATION,
+		STAGE_NO
+	</sql>
+
+	<resultMap type="StageImage" id="stageImage-resultmap">
+		<id column="stage_image_no" property="stageImageNo"/>
+		<result column="stage_image_location" property="stageImageLocation"/>
+		<result column="stage_no" property="stageNo"/>
+	</resultMap>
+	
+	<!-- 공연장 사진 insert -->
+	<insert id="insertStageImage" parameterType="StageImage">
+		<selectKey keyProperty="stageImageNo" resultType="_int" order="BEFORE">
+			select STAGE_IMAGE_NO_SEQ.nextval from dual
+		</selectKey>
+		insert into STAGE_IMAGE (<include refid="column-stageImage"/>)
+		values(#{stageImageNo}, #{stageImageLocation}, #{stageNo})
+	</insert>
+	
+	<!-- 공연장 번호 받아서 공연장사진 모두 delete -->
+	<delete id="deleteStageImageByStageNo" parameterType="_int">
+		delete from stage_image
+		where stage_no = #{stageNo}
+	</delete>
+	
+	<!-- 공연장 번호 받아서 공연장사진 select -->
+	<select id="selectStageImageByStageNo" parameterType="_int" resultMap="stageImage-resultmap">
+		select <include refid="column-stageImage"/>
+		from STAGE_IMAGE
+		where stage_no = #{stageNo}
+		order by stage_image_no
+	</select>
+	
+	<!-- 이미지번호를 받아서 이미지 삭제 -->
+	<delete id="deleteStageImageByStageImageNo" parameterType="_int">
+		delete from stage_image
+		where stage_image_no = #{stageImageNo}
+	</delete>
+</mapper>

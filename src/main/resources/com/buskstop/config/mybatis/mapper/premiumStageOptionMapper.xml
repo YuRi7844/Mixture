@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.premiumStageOptionMapper">
+	
+	<!--  sql 설정 -->
+	<sql id="premiumOption-column-sql">
+		OPTION_NO,
+		STAGE_RENTAL_DATE,
+		STAGE_STATE,
+		STAGE_COST,
+		ESTABLISH_NO
+	</sql>
+	
+	<sql id="premiumOption-select-sql">
+		SELECT	<include refid="premiumOption-column-sql"/>
+		FROM	PREMIUM_STAGE_OPTION
+	</sql>
+	<sql id="select-join-time-sql">
+		SELECT	o.option_no,
+				o.stage_rental_date,
+				o.stage_state,
+				o.stage_cost,
+				o.establish_no,
+				t.time_code
+		FROM	premium_stage_option o, premium_stage_time t
+		WHERE	o.option_no = t.option_no(+)
+	</sql>
+	
+	<resultMap type="PremiumStageOption" id="premiumOption-resultMap">
+		<id column="OPTION_NO" property="optionNo"/>
+		<result column="STAGE_RENTAL_DATE" property="stageRentalDate"/>
+		<result column="STAGE_STATE" property="stageState"/>
+		<result column="STAGE_COST" property="stageCost"/>
+		<result column="ESTABLISH_NO" property="establishNo"/>
+	</resultMap>
+	<resultMap type="PremiumStageOption" id="option-join-time-resultmap" extends="premiumOption-resultMap">
+		<collection property="timeList" ofType="_int">
+			<result column="time_code"/>
+		</collection>
+	</resultMap>
+	
+	<insert id="insertPremiumStageOption" parameterType="PremiumStageOption">
+		<selectKey keyProperty="optionNo" resultType="_int" order="BEFORE">
+			select PREMIUM_OPTION_NO_SEQ.nextval from dual
+		</selectKey>
+		INSERT INTO PREMIUM_STAGE_OPTION
+		VALUES		(#{optionNo},
+					 #{stageRentalDate},
+					 #{stageState},
+					 #{stageCost},
+					 #{establishNo})
+	</insert>
+	
+	<delete id="deletePremiumStageOption" parameterType="_int">
+		DELETE FROM PREMIUM_STAGE_OPTION 
+		WHERE	option_no = #{value}
+	</delete>
+	
+	<update id="updatePremiumStageOptionStageState" parameterType="PremiumStageOption">
+		UPDATE	PREMIUM_STAGE_OPTION
+		SET		stage_state = #{stageState}
+		WHERE	option_no = #{optionNo}
+	</update>
+	
+	<select id="selectPremiumStageOptionByEstablishNo" parameterType="PremiumStageOption" resultMap="premiumOption-resultMap">
+		<include refid="premiumOption-select-sql"/>
+		WHERE establish_no = #{value}
+	</select>
+	
+	<select id="selectPremiumStageOptionByEstablishNoJoin" parameterType="_int" resultMap="option-join-time-resultmap">
+		<include refid="select-join-time-sql"/>
+		AND	o.establish_no = #{value}
+	</select>
+	
+	<select id="selectPremiumStageOptionByOptionNoJoin" parameterType="_int" resultMap="option-join-time-resultmap">
+		<include refid="select-join-time-sql"/>
+		AND	o.option_no = #{value}
+	</select>
+</mapper>

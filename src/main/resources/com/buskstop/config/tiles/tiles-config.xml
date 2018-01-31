@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC 
+		"-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" 
+		"http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+	<definition name="template" template="/WEB-INF/view/layout/mainTemplate.jsp">
+		<put-attribute name="menu" value="/WEB-INF/view/layout/menu.jsp" />
+		<put-attribute name="header" value="/WEB-INF/view/layout/header.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/view/layout/footer.jsp"/>
+	</definition>
+	<definition name="*.tiles" extends="template">
+		<put-attribute name="content" value="/WEB-INF/view/content/{1}.jsp"/>
+	</definition>
+	<definition name="*/*.tiles" extends="template">
+		<put-attribute name="content" value="/WEB-INF/view/content/{1}/{2}.jsp"/>
+	</definition>
+	
+	<definition name="template_pop" template="/WEB-INF/view/layout/emptyTemplate.jsp">
+		<put-attribute name="menu" value="/WEB-INF/view/layout/menuForPopup.jsp" />
+	</definition>
+	<definition name="*/*.tiles2" extends="template_pop">
+		<put-attribute name="content" value="/WEB-INF/view/content/{1}/{2}.jsp"/>
+	</definition>
+	
+	<!-- myPage tiles -->
+	<definition name="myPageTemplate" template="/WEB-INF/view/layout/myPageTemplate.jsp">
+		<put-attribute name="menu" value="/WEB-INF/view/layout/menu.jsp" />
+		<put-attribute name="header" value="/WEB-INF/view/layout/header.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/view/layout/footer.jsp"/>
+		<put-attribute name="sideMenu" value="/WEB-INF/view/layout/sideMenu.jsp"/>	
+	</definition>
+	
+	<definition name="*/*.myTiles" extends="myPageTemplate">
+		<put-attribute name="content" value="/WEB-INF/view/content/{1}/{2}.jsp"/>
+	</definition>
+	
+	<definition name="myPageTemp" template="/WEB-INF/view/layout/myPageTemp.jsp">
+		<put-attribute name="menu" value="/WEB-INF/view/layout/menu.jsp" />
+		<put-attribute name="header" value="/WEB-INF/view/layout/header.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/view/layout/footer.jsp"/>
+		<put-attribute name="profile" value="/WEB-INF/view/content/myPage/profile.jsp"/>
+	</definition>
+	
+	<definition name="*/*.myTemp" extends="myPageTemp">
+		<put-attribute name="content" value="/WEB-INF/view/content/{1}/{2}.jsp"/>
+	</definition>
+</tiles-definitions>		

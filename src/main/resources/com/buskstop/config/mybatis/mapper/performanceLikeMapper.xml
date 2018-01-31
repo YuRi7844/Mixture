@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.performanceLikeMapper">
+
+	<resultMap type="performanceLike" id="performanceLike-resultMap">
+		<id column="PERFORMANCE_LIKE_NO" property="performanceLikeNo"/>
+		<result column="PERFORMANCE_LIKE_USER_ID" property="performanceLikeUserId"/>
+	</resultMap>
+	
+	<resultMap type="performance" id="performance-resultmap">
+		<id column="performance_no" property="performanceNo"/>
+		<result column="performance_name" property="performanceName"/>
+		<result column="performance_title" property="performanceTitle"/>
+		<result column="performance_location" property="performanceLocation"/>
+		<result column="performance_date" property="performanceDate"/>
+		<result column="performance_hits" property="performanceHits"/>
+		<result column="performance_content" property="performanceContent"/>
+		<result column="performance_image" property="performanceImage"/>
+		<result column="performance_user_id" property="performanceUserId"/>
+		<result column="performance_reg_time" property="performanceRegTime"/>
+	</resultMap>
+	
+	<!-- 좋아요 추가(클릭시) -->
+	<insert id="insertPerformanceLike" parameterType="performanceLike">
+		INSERT INTO PERFORMANCE_LIKE
+		(PERFORMANCE_LIKE_NO, PERFORMANCE_LIKE_USER_ID)
+		VALUES
+		(#{performanceLikeNo}, #{performanceLikeUserId})
+	</insert>
+	
+	<!-- 좋아요 삭제(재클릭시) -->
+	<delete id="deletePerformanceLike" parameterType="performanceLike">
+		DELETE FROM PERFORMANCE_LIKE
+		WHERE PERFORMANCE_LIKE_NO = #{performanceLikeNo}
+		AND PERFORMANCE_LIKE_USER_ID = #{performanceLikeUserId}
+	</delete>
+	
+	<!-- 좋아요 아이디로 조회 -->
+	<select id="selectperformanceLikeByPerformanceLikeNo" parameterType="_int" resultMap="performanceLike-resultMap">
+		SELECT *
+		FROM PERFORMANCE_LIKE
+		WHERE PERFORMANCE_LIKE_NO = #{performanceLikeNo}
+	</select>
+	
+	<!-- 공연번호로 좋아요 수 조회 -->
+	<select id="countPerformanceLikeByPerformanceLikeNo" parameterType="_int" resultType="_int">
+		SELECT count(*)
+		FROM PERFORMANCE_LIKE
+		WHERE PERFORMANCE_LIKE_NO = #{performanceLikeNo};
+	</select>
+	<!-- 좋아요 모두 조회 -->
+	<select id="selectAllPerformanceLike" resultMap="performanceLike-resultMap">
+		select *
+		from PERFORMANCE_LIKE
+	</select>
+	
+	<!-- 좋아요 id로 공연정보 조회 -->
+	<select id="selectPerformanceByLikeId" parameterType="string" resultMap="performance-resultmap">
+		SELECT 	P.PERFORMANCE_NO, P.PERFORMANCE_NAME, P.PERFORMANCE_TITLE, 
+				P.PERFORMANCE_LOCATION, P.PERFORMANCE_DATE, P.PERFORMANCE_HITS,
+				P.PERFORMANCE_CONTENT, P.PERFORMANCE_IMAGE, P.PERFORMANCE_USER_ID, P.PERFORMANCE_REG_TIME
+		FROM 	PERFORMANCE P, PERFORMANCE_LIKE L
+		WHERE 	P.PERFORMANCE_NO = L.PERFORMANCE_LIKE_NO(+)	
+		AND 	L.PERFORMANCE_LIKE_USER_ID = #{value} 
+	</select>
+</mapper>

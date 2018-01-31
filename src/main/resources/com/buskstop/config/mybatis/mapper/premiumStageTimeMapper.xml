@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.buskstop.config.mybatis.mapper.premiumStageTimeMapper">
+	
+	<sql id="premiumTime-column-sql">
+		OPTION_NO,
+		TIME_CODE
+	</sql>
+	
+	<sql id="premiumTime-select-sql">
+		SELECT	<include refid="premiumTime-column-sql"/>
+	</sql>
+	
+	<resultMap type="PremiumStageTime" id="premiumTime-resultMqp">
+		<id column="OPTION_NO" property="optionNo"/>
+		<result column="TIME_CODE" property="timeCode"/>
+	</resultMap>
+	
+	<insert id="insertPremiumStageTime">
+		<selectKey keyProperty="optionNo" resultType="_int" order="BEFORE">
+			select PREMIUM_OPTION_NO_SEQ.currval from dual
+		</selectKey>
+		INSERT	INTO PREMIUM_STAGE_TIME
+		VALUES	(#{optionNo}, #{timeCode})
+	</insert>
+	
+	<select id="selectPremiumStageTimeByStageRentalDate" parameterType="date" resultType="_int">
+		SELECT	PREMIUM_STAGE_TIME.TIME_CODE
+		FROM	PREMIUM_STAGE_OPTION, PREMIUM_STAGE_TIME
+		WHERE	PREMIUM_STAGE_OPTION.option_no = PREMIUM_STAGE_TIME.option_no
+			AND	PREMIUM_STAGE_OPTION.stage_rental_date = #{value}
+	</select>
+	<!-- <select id="selectPremiumStageTimeByStageRentalDate" parameterType="date" resultType="_int">
+		SELECT	PREMIUM_STAGE_TIME.TIME_CODE
+		FROM	PREMIUM_STAGE_OPTION, PREMIUM_STAGE_TIME
+		WHERE	PREMIUM_STAGE_OPTION.option_no = PREMIUM_STAGE_TIME.option_no
+			AND	(select to_char(sysdate,'yyyy-mm-dd') stage_rental_date from dual)= sysdate
+	</select> -->
+	
+	<select id="selectPremiumStageTimeByOptionNo" parameterType="_int" resultMap="premiumTime-resultMqp">
+		<include refid="premiumTime-select-sql"/>
+		FROM	PREMIUM_STAGE_TIME
+	</select>
+</mapper>

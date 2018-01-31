@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.buskstop.config.mybatis.mapper.helpCommentMapper">
+	
+	<!-- sql걸정 -->
+	<sql id="helpComment-column-sql">
+		HELP_COMMENT_NO,
+		HELP_NO,
+		HELP_COMMENT,
+		HELP_COMMENT_ID,
+		HELP_COMMENT_REG_TIME
+	</sql>
+	
+	<sql id="select-helpComment-sql">
+		SELECT	<include refid="helpComment-column-sql"/>
+		FROM	HELP_COMMENT
+	</sql>
+	
+	<resultMap type="HelpComment" id="helpComment-resultMap">
+		<id column="help_comment_no" property="helpCommentNo"/>
+		<result column="help_no" property="helpNo"/>
+		<result column="help_comment" property="helpComment"/>
+		<result column="help_comment_id" property="helpCommentId"/>
+		<result column="help_comment_reg_time" property="helpCommentRegTime"/>
+	</resultMap>
+	
+	<insert id="insertHelpComment" parameterType="HelpComment">
+		<selectKey keyProperty="helpCommentNo" resultType="_int" order="BEFORE">
+			select HELP_COMMENT_NO_SEQ.nextval from dual
+		</selectKey>
+		INSERT INTO	HELP_COMMENT
+		VALUES		(#{helpCommentNo},
+					 #{helpNo},
+					 #{helpComment},
+					 #{helpCommentId},
+					 sysdate)
+		
+	</insert>
+	
+	<delete id="deleteHelpComment" parameterType="_int">
+		DELETE FROM HELP_COMMENT
+		WHERE  help_comment_no = #{value}
+	</delete>
+	
+	<update id="updateHelpComment" parameterType="HelpComment">
+		UPDATE	HELP_COMMENT
+		SET		help_comment = #{helpComment}
+		WHERE	help_comment_no = #{helpCommentNo}
+	</update>
+	
+	<select id="selectAllHelpComment" resultMap="helpComment-resultMap">
+		<include refid="select-helpComment-sql"/>
+		ORDER BY help_comment_no asc
+	</select>
+	
+	<select id="selectHelpCommentByUserId" parameterType="String" resultMap="helpComment-resultMap">
+		<include refid="select-helpComment-sql"/>
+		WHERE	help_comment_id = #{value}
+	</select>
+	
+	<select id="selectHelpCommentByComment" parameterType="String" resultMap="helpComment-resultMap">
+		<include refid="select-helpComment-sql"/>
+		WHERE	help_comment like '%'|| #{value} ||'%'
+	</select>
+	
+	<select id="selectHelpCommentByHelpNo" parameterType="_int" resultMap="helpComment-resultMap">
+		<include refid="select-helpComment-sql"/>
+		WHERE	help_no = #{value}
+	</select>
+	
+</mapper>

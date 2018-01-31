@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.videoCommentMapper">
+
+	<!-- sql설정 -->
+	<sql id="videoComment-column-sql">
+		video_comment_no,
+		video_no,
+		video_comment_user_id,
+		video_comment,
+		video_comment_reg_time
+	</sql>
+	
+	<sql id="videoComment-select-sql">
+		SELECT	<include refid="videoComment-column-sql"/>
+		FROM	VIDEO_COMMENT
+	</sql>
+	
+	<resultMap type="VideoComment" id="videoComment-resultmap">
+		<id column="video_comment_no" property="videoCommentNo"/>
+		<result column="video_no" property="videoNo"/>
+		<result column="video_comment_user_id" property="videoCommentUserId"/>
+		<result column="video_comment" property="videoComment"/>
+		<result column="video_comment_reg_time" property="videoCommentRegTime"/>
+	</resultMap>
+
+	<insert id="insertVideoComment" parameterType="com.buskstop.vo.VideoComment">
+		<selectKey keyProperty="videoCommentNo" resultType="_int" order="BEFORE">
+			select VIDEO_COMMENT_NO_SEQ.nextval from dual
+		</selectKey>
+		INSERT INTO	video_comment
+		VALUES		(#{videoCommentNo},
+					 #{videoNo},
+					 #{videoCommentUserId},
+					 #{videoComment},
+					 sysdate
+					)
+	</insert>
+	
+	<update id="updateVideoCommentByVideoCommentNo" parameterType="VideoComment">
+	UPDATE	video_comment
+	SET		video_comment = #{videoComment}
+	WHERE	video_comment_no = #{videoCommentNo}	
+	</update>
+	
+	<delete id="deleteVideoCommentByVideoCommentNo" parameterType="_int">
+	DELETE FROM video_comment
+	WHERE		video_comment_no = #{videoCommentNo}
+	</delete>
+	
+	<delete id="deleteVideoCommentByVideoNo" parameterType="_int">
+		DELETE 	FROM 	VIDEO_COMMENT
+		WHERE	VIDEO_NO = #{value}
+	</delete>
+	
+	<select id="selectVideoCommentByVideoNo" parameterType="_int" resultMap="videoComment-resultmap">
+		<include refid="videoComment-select-sql"/>
+		WHERE	video_no = #{value}
+	</select>
+
+	<select id="selectVideoCommentByMap" parameterType="Map" resultMap="videoComment-resultmap">
+		<include refid="videoComment-select-sql"/>
+		<where>
+			VIDEO_NO = #{videoNo}
+			<if test="userId != null">
+			AND	VIDEO_COMMENT_USER_ID LIKE '%'||#{userId}||'%'
+			</if>
+			<if test="content != null">
+			AND	VIDEO_COMMENT LIKE '%'||#{content}||'%'
+			</if>
+		</where>
+	</select>
+</mapper>

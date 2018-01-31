@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.helpMapper">
+
+	<sql id="column-help">
+		help_no,
+		help_category,
+		help_title,
+		help_content,
+		help_image,
+		help_image2,
+		help_user_id,
+		help_reg_time
+	</sql>
+	
+	<!-- ResultMap 등록 -->
+	<resultMap type="help" id="help-resultmap">
+		<id column="help_no" property="helpNum"/>
+		<result column="help_category" property="helpCategory"/>
+		<result column="help_title" property="helpTitle"/>
+		<result column="help_content" property="helpContent"/>
+		<result column="help_image" property="helpImage"/>
+		<result column="help_image2" property="helpImage2"/>
+		<result column="help_user_id" property="helpUserId"/>
+		<result column="help_reg_time" property="helpRegTime"/>
+	</resultMap>
+	
+	<!-- 고객센터 게시판 글 insert -->
+	<insert id="insertHelp" parameterType="Help">
+		<selectKey keyProperty="helpNum" resultType="_int" order="BEFORE">
+			select HELP_NO_SEQ.nextval from dual
+		</selectKey>
+		insert into HELP (<include refid="column-help"/>)
+		values(#{helpNum}, 
+			   #{helpCategory}, 
+			   #{helpTitle}, 
+			   #{helpContent}, 
+			   #{helpImage},
+			   #{helpImage2}, 
+			   #{helpUserId},
+			   sysdate)
+	</insert>
+	
+	
+	<select id="selectHelpByHelpNum" resultMap="help-resultmap" parameterType="_int">
+	select <include refid="column-help"/>
+	from help 
+	where help_no = #{helpNum}
+	</select>
+	
+	<delete id="deleteHelpByHelpNum" parameterType="_int">
+	delete from help where help_no=#{helpNum}
+	</delete>
+	
+	<update id="updateHelp" parameterType="Help">
+	update help
+	<set>
+		<if test="helpCategory != null">help_category = #{helpCategory},</if>
+		<if test="helpTitle != null">help_title = #{helpTitle},</if>
+		<if test="helpContent != null">help_content = #{helpContent},</if>
+		<if test="helpImage != null">help_image = #{helpImage},</if>
+		<if test="helpUserId != null">help_user_id = #{helpUserId},</if>
+	</set>
+	where help_no=#{helpNum}
+	</update>
+	
+	<!-- 고객센터 전체 조회 페이징 -->
+	<select id="selectAllHelp" resultMap="help-resultmap" parameterType="map">
+		select <include refid="column-help"/>
+		from(
+			select rownum rn, <include refid="column-help"/>
+			from(
+				select *
+				from help
+				order by help_no desc
+			)
+			where rownum &lt;= #{end}
+		)
+		where rn >= #{begin}
+	</select>
+	
+	<!-- 고객센터 전체 조회 count -->
+	<select id="selectAllHelpCount" resultType="_int">
+		select count(*)
+		from help
+	</select>
+	
+	<!-- 고객센터 제목으로 조회 페이징 -->
+	<select id="selectHelpByHelpTitle" resultMap="help-resultmap" parameterType="map">
+		select <include refid="column-help"/>	
+		from(
+			select rownum rn, <include refid="column-help"/>
+			from(	
+				select *
+				from help
+				where help_title like '%'||#{helpTitle}||'%'
+				order by help_no desc
+			)
+			where rownum &lt;= #{end}
+		)
+		where rn >= #{begin}
+	</select>
+	
+	<!-- 고객센터 제목으로 조회 카운트 -->
+	<select id="countHelpByHelpTitle" resultType="_int" parameterType="String">
+		select count(*)
+		from help
+		where help_title like '%'||#{helpTitle}||'%'
+	</select>
+	
+	<!-- 고객센터 내용으로 조회 페이징 -->
+	<select id="selectHelpByHelpContent" resultMap="help-resultmap" parameterType="map">
+		select <include refid="column-help"/>	
+		from(
+			select rownum rn, <include refid="column-help"/>
+			from(	
+				select *
+				from help
+				where help_content like '%'||#{helpContent}||'%'
+				order by help_no desc
+			)
+			where rownum &lt;= #{end}
+		)
+		where rn >= #{begin}
+	</select>
+	
+	<!-- 고객센터 내용으로 조회 카운트 -->
+	<select id="countHelpByHelpContent" resultType="_int" parameterType="String">
+		select count(*)
+		from help
+		where help_content like '%'||#{helpContent}||'%'
+	</select>
+	
+	<!-- 고객센터 작성자로 조회 페이징 -->
+	<select id="selectHelpByHelpUserId" resultMap="help-resultmap" parameterType="map">
+		select <include refid="column-help"/>	
+		from(
+			select rownum rn, <include refid="column-help"/>
+			from(	
+				select *
+				from help
+				where help_user_id like '%'||#{helpUserId}||'%'
+				order by help_no desc
+			)
+			where rownum &lt;= #{end}
+		)
+		where rn >= #{begin}
+	</select>
+	
+	<!-- 고객센터 작성자로 조회 카운트 -->
+	<select id="countHelpByHelpUserId" resultType="_int" parameterType="String">
+		select count(*)
+		from help
+		where help_user_id like '%'||#{helpUserId}||'%'
+	</select>
+	
+	<!-- 내가 작성한 글 조회 -->
+	<select id="selectMyHelp" resultMap="help-resultmap" parameterType="String">
+		select *
+		from help
+		where help_user_id = #{helpUserId}
+	</select>
+	
+</mapper>

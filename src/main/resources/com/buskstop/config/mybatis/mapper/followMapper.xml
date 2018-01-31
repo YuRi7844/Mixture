@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.buskstop.config.mybatis.mapper.followMapper">
+	<sql id="follow-column">
+		FOLLOWING_ID , FOLLOWER_ID
+	</sql>
+	
+	<sql id="artist-column">
+		ARTIST_USER_ID,
+		ARTIST_NAME,
+		ARTIST_PERFORMANCE,
+		ARTIST_PROFILE,
+		ARTIST_IMAGE,
+		ARTIST_MEMBERS,
+		ARTIST_SNS
+	</sql>
+	
+	<sql id="select-follow-sql">
+		SELECT
+		<include refid="follow-column"/>
+		FROM FOLLOW
+	</sql>
+	
+	<resultMap type="follow" id="follow-resultmap">
+		<id column="FOLLOWING_ID" property="userId"/>
+		<result column="FOLLOWER_ID" property="followerId"/>
+	</resultMap>
+	
+	<resultMap type="artist" id="artist-resultmap">
+		<id column="ARTIST_USER_ID" property="artistId"/>
+		<result column="ARTIST_NAME" property="artistName"/>
+		<result column="ARTIST_PERFORMANCE" property="performance"/>
+		<result column="ARTIST_PROFILE" property="profile"/>
+		<result column="ARTIST_IMAGE" property="artistImage"/>
+		<result column="ARTIST_MEMBERS" property="artistMembers"/>
+		<result column="ARTIST_SNS" property="artistSns"/>
+	</resultMap>
+	
+	<insert id="insertFollow" parameterType="follow">
+		INSERT INTO FOLLOW
+			(<include refid="follow-column"/>)
+		VALUES (
+			#{userId} , #{followerId}
+		)
+	</insert>
+	
+	<delete id="deleteFollow" parameterType="follow">
+		DELETE FROM FOLLOW
+		WHERE FOLLOWING_ID = #{userId} AND FOLLOWER_ID = #{followerId}
+	</delete>
+	
+	<select id="selectFollowByUserId" parameterType="string" resultMap="follow-resultmap">
+		<include refid="select-follow-sql"/>
+		WHERE FOLLOWING_ID = #{value}
+	</select>
+	
+	<select id="selectFollowArtistById" parameterType="string" resultMap="artist-resultmap">
+		SELECT 	<include refid="artist-column"/>
+		FROM	ARTIST A, FOLLOW F
+		WHERE	A.ARTIST_USER_ID = F.FOLLOWER_ID
+		AND		F.FOLLOWING_ID = #{value}
+	</select>
+	
+	<resultMap type="artist" id="artist-followcount-resultmap">
+		<id property="artistId" column="FOLLOWER_ID"/>
+		<result property="followCount" column="COUNT(*)"/>
+	</resultMap>
+	
+	<select id="selectArtistFollowCount" resultMap="artist-followcount-resultmap">
+		SELECT 	FOLLOWER_ID, COUNT(*)
+		FROM	FOLLOW
+		GROUP BY FOLLOWER_ID
+		ORDER BY COUNT(*) DESC
+	</select>
+
+	<!-- 날 팔로우한 사람들을 조회 -->
+	<select id="selectFollowByFollowerId" parameterType="String" resultMap="follow-resultmap">
+		SELECT <include refid="follow-column"/>
+		FROM FOLLOW
+		WHERE FOLLOWER_ID = #{follower_id}
+	</select>
+</mapper>

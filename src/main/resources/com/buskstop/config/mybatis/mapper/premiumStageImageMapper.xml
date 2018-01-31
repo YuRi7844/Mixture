@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.buskstop.config.mybatis.mapper.premiumStageImageMapper">
+	
+	<sql id="premiumImage-column-sql">
+		STAGE_IMAGE_NO, STAGE_IMAGE_LOCATION, ESTABLISH_NO
+	</sql>
+	
+	<sql id="select-premiumImage-sql">
+		SELECT	<include refid="premiumImage-column-sql"/>
+		FROM PREMIUM_STAGE_IMAGE
+	</sql>
+	
+	<resultMap type="premiumStageImage" id="premiumImage-resultmap">
+		<id column="STAGE_IMAGE_NO" property="stageImageNum"/>
+		<result column="STAGE_IMAGE_LOCATION" property="stageImageLocation"/>
+		<result column="ESTABLISH_NO" property="establishNum"/>
+	</resultMap>
+	
+	<insert id="insertImage" parameterType="premiumStageImage">
+		<selectKey keyProperty="stageImageNum" resultType="int" order="BEFORE">
+			SELECT PREMIUM_STAGE_IMAGE_NO_SEQ.nextval FROM dual
+		</selectKey>
+	
+		INSERT INTO PREMIUM_STAGE_IMAGE
+		(<include refid="premiumImage-column-sql"/>)
+		VALUES (
+			#{stageImageNum}, #{stageImageLocation}, #{establishNum}
+		)
+	</insert>
+	
+	<delete id="deleteImageByEstablishNum">
+		DELETE FROM PREMIUM_STAGE_IMAGE
+		WHERE ESTABLISH_NO = #{value}
+	</delete>
+	
+	<select id="selectImageByEstablishNum" parameterType="_int" resultType="string">
+		SELECT 	STAGE_IMAGE_LOCATION
+		FROM 	PREMIUM_STAGE_IMAGE
+		WHERE 	ESTABLISH_NO = #{value}
+	</select>
+</mapper>
